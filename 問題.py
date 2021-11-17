@@ -3,9 +3,6 @@ import re
 import itertools
 import pandas as pd
 import nltk
-import spacy
-import requests
-from bs4 import BeautifulSoup
 
 # コーパスからテキスト取得
 df = pd.read_excel('SCoRE.xls')
