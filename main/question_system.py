@@ -1,49 +1,53 @@
-import random
-import re
+# 必要なライブラリのインポート
 import os
-import itertools
+import re
+import random
 import pandas as pd
 import nltk
 
 
 class Question():
 
-    def __init__(self, csv_path, xls_path):
-        self.csv_path = csv_path
-        self.xls_path = xls_path
+    def __init__(self, sentence, pos):
+        self.sentence = sentence
+        self.pos = pos
 
-    def read_data(self, file_path):
-        # ファイルの拡張子の取得
-        root, ext = os.path.splitext(file_path)
-        if ext == '.csv':
-            df = pd.read_csv(file_path)
-        if ext == '.xls':
-            df = pd.read_excel(file_path)
+    def create_sentence_df(self):
+        japanese = self.sentence.objects.values_list(
+            'japanese_question')
+        english = self.sentence.objects.values_list(
+            'english_question')
+        df = pd.DataFrame([english, japanese]).T
+        df.columns = ['用例', '日本語訳']
+        return df
+
+    def create_pos_df(self):
+        word = self.pos.objects.values_list('word')
+        pos_tag = self.pos.objects.values_list('pos_tag')
+        df = pd.DataFrame([word, pos_tag]).T
+        df.columns = ['単語', '品詞']
+        df['単語'] = df['単語'].astype(str).str.strip("[{}(),.]'`")
+        df['品詞'] = df['品詞'].astype(str)
         return df
 
     def create_data(self):
-        # コーパスからテキスト取得
-        df = self.read_data(self.xls_path)
+        # テキスト取得
+        df = self.create_sentence_df()
 
         # 文書ごとのリストを作る
         sentences = []
         japanese = []
-        # {}を取り除く
-        for sentence, jp in zip(df['用例'].values, df['日本語訳'].values):
-            sentences.append(''.join(re.split('[{}]', sentence)))
-            japanese.append(jp)
+        # {}, ()を取り除く
+        for sentence, jp in zip(df['用例'].astype(str).values, df['日本語訳'].astype(str).values):
+            sentences.append(''.join(re.split('[{}()]', sentence)))
+            japanese.append(''.join(re.split('[{}()]', jp)))
+        return sentences, japanese
 
-        # 単語と品詞がペアになったDataFrameの作成
-        pos_df = self.read_data(self.csv_path)
-
-        return sentences, japanese, pos_df
-
-    def question(self):
-        sentences, japanese, pos_df = self.create_data()
+    def question(self, english, japanese, pos_df):
         import random
         # 問題となる文をランダムに取得
-        question_sent_idx = random.choice(range(len(sentences)))
-        question_sent = sentences[question_sent_idx]
+        question_sent_idx = random.choice(range(len(english)))
+        question_sent = english[question_sent_idx]
         japanese_sent = japanese[question_sent_idx]
 
         while(1):
@@ -75,25 +79,23 @@ class Question():
         japanese_question = japanese_sent
         # 英語文での問題
         english_question = question
-        return japanese_question, english_question, answer, question_pos
 
-    def judge_answer(self, response, answer):
+        # 間違えの選択肢の作成
+
+        def has_duplicates(seq):
+            return len(seq) != len(set(seq))
         while(1):
             wrong_answer = random.sample(
-                pos_df.loc[pos_df['pos_tag'] == question_pos, 'word'].values.tolist(), 3)
-
-            def has_duplicates(seq):
-                return len(seq) != len(set(seq))
+                pos_df.loc[pos_df['品詞'] == str("('"+question_pos+"',)"), '単語'].values.tolist(), 3)
             if answer in wrong_answer:
                 continue
             elif has_duplicates([str.lower(x) for x in wrong_answer]):
                 continue
             else:
                 break
+
+        # 選択肢たち
         answers = wrong_answer
         answers.append(answer)
         answers_list = random.sample(answers, len(answers))
-        if answers_list[response-1] == answer:
-            """正解だったら「正解です」表示をする"""
-        else:
-            """「間違えです」表示をする"""
+        return english_question, japanese_question, answers_list, answer, question_pos
