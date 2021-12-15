@@ -1,8 +1,25 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %} メインページ {% endblock %}
+{% load widget_tweaks %}
+
+{% block title %} 問題ページ {% endblock %}
+
 {% block content %}
 <div>
-  <h1>問題ページ</h1>
+  <h3>問題文：{{ question.japanese_question }}</h3>
+  <h3>問題文(英語訳)：{{ question.english_question }}</h3>
+  <h3>選択肢</h3>
+  <ul>
+    {% for option in question.options %}
+      <li>{{ option }}</li>
+    {% endfor %}
+  </ul>
+  <h3>回答</h3>
+  <form method="post">
+    <button name="btn_1" class="btn btn-warning" type="submit">回答する</button>
+    <button name="btn_2" class="btn btn-warning" type="submit">回答する</button>
+    <button name="btn_3" class="btn btn-warning" type="submit">回答する</button>
+    <button name="btn_4" class="btn btn-warning" type="submit">回答する</button>
+  </form>
 </div>
 {% endblock %}
