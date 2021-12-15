@@ -26,11 +26,12 @@ class QuestionView(View):
         print('日本語文: ', japanese[0])
         print('単語, 品詞: ', pos_df['単語'][0], pos_df['品詞'][0])
 
-        english_question, japanese_question, answers_list, answer, question_pos = question.question(
+        english_question, japanese_question, answers_list, answer, answer_index, question_pos = question.question(
             english, japanese, pos_df)
         print('英語問題文: ', english_question)
         print('日本語問題文: ', japanese_question)
         print('答えの選択肢: ', answers_list)
+        print('答えの番号: ', answer_index)
         print('答え: ', answer)
         print('答えの品詞: ', question_pos)
 

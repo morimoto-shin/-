@@ -98,4 +98,9 @@ class Question():
         answers = wrong_answer
         answers.append(answer)
         answers_list = random.sample(answers, len(answers))
-        return english_question, japanese_question, answers_list, answer, question_pos
+
+        # 答えのインデックス番号の取得
+        for index, a in enumerate(answers_list):
+            if a in answer:
+                answer_index = index + 1
+        return english_question, japanese_question, answers_list, answer, answer_index, question_pos
