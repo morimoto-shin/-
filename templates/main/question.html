@@ -5,21 +5,27 @@
 {% block title %} 問題ページ {% endblock %}
 
 {% block content %}
-<div>
-  <h3>問題文：{{ question.japanese_question }}</h3>
-  <h3>問題文(英語訳)：{{ question.english_question }}</h3>
-  <h3>選択肢</h3>
-  <ul>
-    {% for option in question.options %}
-      <li>{{ option }}</li>
-    {% endfor %}
-  </ul>
-  <h3>回答</h3>
-  <form method="post">
-    <button name="btn_1" class="btn btn-warning" type="submit">回答する</button>
-    <button name="btn_2" class="btn btn-warning" type="submit">回答する</button>
-    <button name="btn_3" class="btn btn-warning" type="submit">回答する</button>
-    <button name="btn_4" class="btn btn-warning" type="submit">回答する</button>
-  </form>
+<div class="card my-5">
+  <div class="card-header">
+    <div class="col-8">{{ question.japanese_question }}</div>
+    <div class="col-8">{{ question.english_question }}</div>
+  </div>
+  <div class="card-body">
+    <div class="card mx-auto">
+      <div class="card-header">選択肢</div>
+      <ul class="list-group list-group-flush">
+        {% for option in question.options %}
+          <li class="list-group-item">{{ forloop.counter0 |add:"1" }}. {{ option }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <form class="row d-flex justify-content-center mt-4" method="post">
+      {% csrf_token %}
+      <button name="btn_1" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question.answer_index }}" type="submit">1</button>
+      <button name="btn_2" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question.answer_index }}" type="submit">2</button>
+      <button name="btn_3" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question.answer_index }}" type="submit">3</button>
+      <button name="btn_4" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question.answer_index }}" type="submit">4</button>
+    </form>
+  </div>
 </div>
 {% endblock %}

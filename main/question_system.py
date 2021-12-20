@@ -103,4 +103,11 @@ class Question():
         for index, a in enumerate(answers_list):
             if a in answer:
                 answer_index = index + 1
-        return english_question, japanese_question, answers_list, answer, answer_index, question_pos
+        question = {
+            'english_question': english_question,
+            'japanese_question': japanese_question,
+            'answer_index': answer_index,
+            'answer': answer,
+            'options': answers_list,
+        }
+        return question
