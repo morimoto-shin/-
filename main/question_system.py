@@ -2,8 +2,10 @@
 import os
 import re
 import random
+import numpy as np
 import pandas as pd
 import nltk
+from datetime import datetime
 
 
 class Question():
@@ -22,8 +24,13 @@ class Question():
         return df
 
     def create_pos_df(self):
-        word = self.pos.objects.values_list('word')
-        pos_tag = self.pos.objects.values_list('pos_tag')
+        import random
+        # TODO: 選択肢が空白になってしまうから、random.sampleを改善する必要がある
+        w = [i for i in self.pos.objects.values_list('word')]
+        word = random.sample(w, int(len(w)*0.2))
+        p = [i for i in self.pos.objects.values_list('pos_tag')]
+        pos_tag = random.sample(p, int(len(p)*0.2))
+        start = datetime.now()
         df = pd.DataFrame([word, pos_tag]).T
         df.columns = ['単語', '品詞']
         df['単語'] = df['単語'].astype(str).str.strip("[{}(),.]'`")
@@ -33,7 +40,6 @@ class Question():
     def create_data(self):
         # テキスト取得
         df = self.create_sentence_df()
-
         # 文書ごとのリストを作る
         sentences = []
         japanese = []
@@ -68,6 +74,8 @@ class Question():
             # それ以外なら、answerとして答えを変数として格納する
             else:
                 answer = question_word
+                if answer[0] == "'":
+                    answer = answer[1:]
                 question_pos = question_sent_pos[question_word_index][1]
                 break
 
@@ -84,6 +92,8 @@ class Question():
 
         def has_duplicates(seq):
             return len(seq) != len(set(seq))
+
+        # TODO: ”'d" とかを解決する
         while(1):
             wrong_answer = random.sample(
                 pos_df.loc[pos_df['品詞'] == str("('"+question_pos+"',)"), '単語'].values.tolist(), 3)
@@ -92,7 +102,10 @@ class Question():
             elif has_duplicates([str.lower(x) for x in wrong_answer]):
                 continue
             else:
-                break
+                break 
+        wrong_answer = [w for w in wrong_answer if w != '']
+        if len(wrong_answer) < 3:
+            wrong_answer.append(random.choice(pos_df['単語'].values.tolist()))
 
         # 選択肢たち
         answers = wrong_answer
