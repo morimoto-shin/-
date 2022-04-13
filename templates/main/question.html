@@ -2,7 +2,7 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block title %} 問題ページ {% endblock %}
+{% block title %} {{ currentNumber }}問目 {% endblock %}
 
 {% block content %}
 <div class="card my-5">
@@ -21,7 +21,7 @@
     </div>
     <form class="row d-flex justify-content-center mt-4" method="post">
       {% csrf_token %}
-      <button name="btn_1" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question.answer_index }}" type="submit">1</button>
+      <button name="btn_1" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question }}" type="submit">1</button>
       <button name="btn_2" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question.answer_index }}" type="submit">2</button>
       <button name="btn_3" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question.answer_index }}" type="submit">3</button>
       <button name="btn_4" class="btn col-2 btn-primary btn-lg mx-2" value="{{ question.answer_index }}" type="submit">4</button>

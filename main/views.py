@@ -4,13 +4,17 @@ from django.views.generic import TemplateView, View
 from .question_system import Question
 from .models import Sentence, Pos
 
-
 class IndexView(TemplateView):
     template_name = 'main/index.html'
 
 
 class QuestionView(View):
     def get(self, request, *arg, **kwargs):
+        if request.session.get('currentNumber') is None:
+          request.session['currentNumber'] = 1
+        else:
+          request.session['currentNumber'] += 1
+        print(request.session.get('currentNumber'))
         sentence = Sentence  # 英語文と日本語訳のペア
         pos = Pos  # 品詞と単語のペア
         # questionインスタンスの作成
@@ -24,25 +28,28 @@ class QuestionView(View):
         question = question_class.question(english, japanese, pos_df)
         print('クエスチョン:', question)
         return render(request, 'main/question.html', {
-            'question': question
+            'question': question,
+            'currentNumber': request.session['currentNumber']
         })
 
     def post(self, request, *args, **kwargs):
-      input_answer = '1'
-      question_answer = request.POST.get('btn_1')
-      print('リクエスト',request.POST, question_answer, input_answer == question_answer)
       if 'btn_1' in request.POST:
         input_answer = '1'
-        question_answer = request.POST.get('btn_1')
-        print('回答',input_answer, question_answer)
-        if question_answer == input_answer:
-          return redirect('/main/answer')
-        else:
-          return redirect('/main/wrong_answer')
+        question= request.POST.get('btn_1')
+        # question_answer =  question['answer_index']
+        print(question)
+        print(type(question)) 
+        import json
+        # json_data = json.loads(question)
+        # print(json_data)
+        # print(question_answer)
+        # if question_answer == input_answer:
+        return redirect('/main/answer')
+        # else:
+        #   return redirect('/main/wrong_answer')
       elif 'btn_2' in request.POST:
         input_answer = '2'
         question_answer = request.POST.get('btn_2')
-        print('回答',input_answer, question_answer)
         if question_answer == input_answer:
           return redirect('/main/answer')
         else:
@@ -50,7 +57,6 @@ class QuestionView(View):
       elif 'btn_3' in request.POST:
         input_answer = '3'
         question_answer = request.POST.get('btn_3')
-        print('回答',input_answer, question_answer)
         if question_answer == input_answer:
             return redirect('/main/answer')
         else:
@@ -58,7 +64,6 @@ class QuestionView(View):
       elif 'btn_4' in request.POST:
         input_answer = '4'
         question_answer = request.POST.get('btn_4')
-        print('回答',input_answer, question_answer)
         if question_answer == input_answer:
             return redirect('/main/answer')
         else:
